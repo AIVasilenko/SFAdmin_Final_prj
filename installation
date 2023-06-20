@@ -1,0 +1,108 @@
+
+All roles may use files from dir /et/ansible/common. It's contents is:
+../common
+    apache2
+        mymail.conf       # create your own site
+        roundcube.conf    # alias for dovecot
+    bind
+        99-disable-network-config.cfg
+        named.conf.local      # configure your DNS
+        named.conf.options    # DNS options
+        sf-alek.db            # describe your zone
+        sf-alek-reverse.db    # your reverse zone
+    dovecot
+        conf.d                # this folder includes ready configs
+            10-auth.conf
+            10-mail.conf
+            10-master.conf
+            auth-passwdfile.conf.ext
+        dovecot-users         # define users
+    ELK_deb
+        <filebeat_deb>        # provide desired deb pkg, change the name in vars.yml
+        filebeat.yml          # ready config
+        kibana.yml            # ready config
+    ELK_rpm
+        <elasticsearch.rpm>   # provide desired rpm, change vars.yml
+        elasticsearch.yml     # ready config
+        <filebeat.rpm>        # provide prm, change vars.yml
+        <GPG-KEY-elasticsearch.skr>   # receive GPG key and place here
+        <kibana.rpm>          # desired rpm for kibana, change vars.yml
+        kibana.yml            # ready to use
+        <logstash.rpm>        # load rpm for logstash, change vars.yml
+    nginx                     # ready cinfig for kibana
+        kibana.conf
+        .htpasswd
+    postfix                   # this folder contains all configs for postfix
+        main.cf
+        master.cf
+        virtual_mailbox_domains
+    roundcube
+        roundcube.conf        # roundcube config
+
+                      Install order
+      u-agent
+The role ubuntu_net_inst.yml includes:
+            openvpn_inst.yml
+            bind_inst.yml
+
+After they were run, connect to u-agent server and configure netplan:
+   /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg must include: network: {config: disabled}
+   edit /etc/netplan/50-cloud-init.yaml to add:
+         . . . . . . . . . .
+         set-name: eth0
+         nameservers:
+             addresses: [10.0.0.2]
+             search: [sf-alek.ru]
+         . . . . . . . . . .
+   perform: sudo netplan apply
+            sudo systemctl restart bind9.service
+
+Role ubuntu_full_inst.yml includes:
+            web_inst.yml
+            postfix_inst.yml
+            mariadb_inst.yml    # only installs DB, set root password manually
+            dovecot_inst.yml
+            zabbix_agent_inst.yml
+            filebeat_inst.yml
+
+Connect to u-agent and set root password for mariadb:
+   sudo mysql
+   ALTER USER 'root'@'localhost' IDENTIFIED BY 'your_password';
+   flush privileges;
+   exit;
+
+Continue install porcess by plaing roundcube_inst.yml.
+Now the time to configure roundcube.
+Connect to u-agent. Update /etc/php/7.4/apache2/php.ini
+Uncomment:
+   extension=intl
+   extension=mbstring
+   extension=xmlrpc
+Add new:
+   extension=dom.so
+
+In your browser:
+http://<domain_name>/mail/installer
+Check config and push "NEXT"
+Database setup:
+   fullfil Database name, Database user name, Database password
+Push "Create Config"
+http://<domain_name>/mail -- login and use.
+
+
+      db-server
+The role centos_full_inst.yml includes:
+   openvpn_inst.yml
+   firewalld_inst.yml
+   zabbix_agent_inst.yml
+   zabbix_firew.yml
+   postgresql_inst.yml
+   elk_inst.yml (this one includes: nginx_inst.yml, es_inst.yml, kb_inst.yml, ls_inst.yml)
+
+After playbook finished, connect to host and define password for elastic and kibana_system users:
+   sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -i -u elastic
+Check:
+   check health: sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
+To configure kibana connect to
+   <domain_name>:5601
+
