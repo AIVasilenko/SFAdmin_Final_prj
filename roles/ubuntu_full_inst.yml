@@ -1,9 +1,6 @@
-- import_playbook: ubuntu/openvpn_inst.yml
-- import_playbook: ubuntu/bind_inst.yml
 - import_playbook: ubuntu/web_inst.yml
 - import_playbook: ubuntu/postfix_inst.yml
 - import_playbook: ubuntu/mariadb_inst.yml
 - import_playbook: ubuntu/dovecot_inst.yml
-- import_playbook: ubuntu/roundcube_inst.yml
 - import_playbook: ubuntu/zabbix_agent_inst.yml
 - import_playbook: ubuntu/filebeat_inst.yml

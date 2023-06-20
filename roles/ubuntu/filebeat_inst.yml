@@ -12,7 +12,7 @@
       group: root
       mode: 0777
 
-  - name: Install filebeat 8.1 from deb
+  - name: Install filebeat 8.7 from deb
     raw: dpkg -i /tmp/{{FL}}
 
   - name: Copy filebeat config to host

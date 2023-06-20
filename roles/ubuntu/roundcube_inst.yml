@@ -21,27 +21,13 @@
       group: www-data
       recurse: yes
 
-# - name: Install mariadb Server
-#   apt:
-#     name: 
-#       - mariadb-server
-#       - python3-pymysql
-#       - php-mysql
-#     update_cache: true
-#   notify: systemd
-
-# - name: secure mariadb
-#   become: yes
-#   expect:
-#     command: mysql_secure_installation
-#     responses:
-#       'Enter current password for root': ''
-#       'Set root password': 'n'
-#       'Remove anonymous users': 'y'
-#       'Disallow root login remotely': 'y'
-#       'Remove test database': 'y'
-#       'Reload privilege tables now': 'y'
-#     timeout: 1
+  - name: Install php extensions
+    apt:
+      name:
+      - php-mbstring
+      - php-xml
+      - php-intl
+      update_cache: true
 
   - name: Create DB
     mysql_db:

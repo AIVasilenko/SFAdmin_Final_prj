@@ -3,6 +3,9 @@
   become: yes
   tasks:
 
+  - name: Include vars
+    include_vars: "../../vars.yml"
+
   - name: Set postfix option internet site
     debconf:
       name: postfix
@@ -22,8 +25,9 @@
       state: latest
 
   - name: copy config files
-      src: '{{ item }}'
-      dest: '/etc/postfix'
+    copy:
+      src: "{{ item }}"
+      dest: "/etc/postfix"
     loop:
       - ../../common/postfix/main.cf
       - ../../common/postfix/master.cf

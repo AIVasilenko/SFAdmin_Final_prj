@@ -26,12 +26,11 @@
   - name: create mail user
     user:
       name: vmail
-      group: vmail
+      groups: vmail
       uid: 5000
       comment: virtual mail user
       shell: /usr/sbin/nologin
       home: /var/mail/vhosts
-      append: yes
 
   - name: create mail dir
     file:
@@ -44,13 +43,17 @@
   - name: copy config files
     copy:
       src: '{{ item }}'
-      dest: '/etc/dovecot'
+      dest: /etc/dovecot/conf.d
     loop:
-      - ../../common/dovecot/dovecot-users
       - ../../common/dovecot/conf.d/10-auth.conf
       - ../../common/dovecot/conf.d/10-mail.conf
       - ../../common/dovecot/conf.d/10-master.conf
       - ../../common/dovecot/conf.d/auth-passwdfile.conf.ext
+
+  - name: copy doverot-user file
+    copy:
+      src: ../../common/dovecot/dovecot-users
+      dest: /etc/dovecot
 
   - name: Restart dovecot
     service:
