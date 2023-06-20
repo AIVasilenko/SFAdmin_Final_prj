@@ -1,0 +1,9 @@
+zone "sf-alek.ru" {
+type master;
+file "/etc/bind/sf-alek.db";
+};
+
+zone "0.0.10.in-addr.arpa" {
+type master;
+file "/etc/bind/sf-alek-reverse.db";
+};

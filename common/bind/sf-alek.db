@@ -1,0 +1,14 @@
+$TTL 30m
+@ 	IN	SOA u-agent.sf-alek.ru. alek.sf-alek.ru. (
+	1 ; serial
+	5h ; renew period
+	5m ; period
+	1w ; expire
+	30m)
+@	IN 	NS u-agent.sf-alek.ru.
+;u-agent		IN A 10.0.0.2
+alek		IN A 10.0.0.2
+sf-alek.ru.	IN MX 10 alek.sf-alek.ru.
+main-server	IN A 10.0.0.1
+u-agent		IN A 10.0.0.2
+db-server	IN A 10.0.0.3
