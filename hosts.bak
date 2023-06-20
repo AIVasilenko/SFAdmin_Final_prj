@@ -1,0 +1,10 @@
+[all]
+main-server ansible_connection=local
+u-agent ansible_ssh_host=10.0.0.2
+db-server  ansible_ssh_host=10.0.0.3
+
+[ubuntu]
+u-agent ansible_ssh_host=10.0.0.2
+
+[centos]
+db-server  ansible_ssh_host=10.0.0.3
