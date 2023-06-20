@@ -1,0 +1,30 @@
+---
+- hosts: ubuntu_direct
+  become: yes
+  tasks:
+  - name: Install OpenVPN
+    ansible.builtin.apt:
+      name: openvpn
+      update_cache: yes
+
+  - name: Copy client config file
+    copy:
+      src: /etc/openvpn/client/u-agent/u-agent.conf
+      dest: /etc/openvpn/u-agent.conf
+
+# - name: Copy netplan config
+#   copy:
+#     src: '{{ item.src }}'
+#     dest: '{{ item.dest }}'
+#   with_items:
+#     - { src: ../../common/bind/50-cloud-init.yaml, dest: /etc/netplan/50-cloud-init.yaml }
+#     - { src: ../../common/bind/99-disable-network-config.cfg, dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg }
+
+  - name: Start OpenVPN
+    ansible.builtin.service:
+      name: openvpn@u-agent
+      state: started
+      enabled: true
+  
+# - name: netplan applay
+#   command: netplan apply

@@ -1,0 +1,17 @@
+---
+- hosts: centos
+  become: yes
+  tasks:
+    - name: Install firewalld
+      yum:
+        name: firewalld
+        state: latest
+
+    - name: start firewall
+      service:
+        name: firewalld
+        enabled: yes
+        state: started
+
+    - name: Set default zone of internal
+      command: firewall-cmd --set-default-zone internal 

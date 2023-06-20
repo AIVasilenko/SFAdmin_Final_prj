@@ -1,0 +1,46 @@
+---
+- hosts: ubuntu
+  vars:
+    FL: "filebeat-8.7.0-amd64.deb"
+  become: yes
+  tasks:
+  - name: Copy filebeat 8.7 to host
+    copy:
+      src: /etc/ansible/common/ELK_deb/{{FL}}
+      dest: /tmp
+      owner: root
+      group: root
+      mode: 0777
+
+  - name: Install filebeat 8.1 from deb
+    raw: dpkg -i /tmp/{{FL}}
+
+  - name: Copy filebeat config to host
+    copy:
+      src: /etc/ansible/common/ELK_deb/filebeat.yml
+      dest: /etc/filebeat/filebeat.yml
+      owner: root
+      group: root
+      mode: 0600
+
+  - name: Enable kibana module
+    command: filebeat modules enable kibana
+
+  - name: Copy kibana module config to host
+    copy:
+      src: /etc/ansible/common/ELK_deb/kibana.yml
+      dest: /etc/filebeat/modules.d/kibana.yml
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Start filebeat
+    service:
+      name: filebeat
+      state: started
+      enabled: yes
+
+  - name: Remove temp file
+    file:
+      path: /tmp/{{FL}}
+      state: absent

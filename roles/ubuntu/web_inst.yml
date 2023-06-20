@@ -1,0 +1,3 @@
+- import_playbook: ubuntu/nginx_inst.yml
+- import_playbook: ubuntu/apache_inst.yml
+- import_playbook: ubuntu/php_inst.yml

@@ -1,0 +1,56 @@
+---
+- hosts: centos
+  vars_files:
+    - /etc/ansible/vars.yml
+  become: yes 
+  tasks:
+
+  - name: Install epel repo
+    yum:
+      name: epel-release
+      state: present
+
+  - name: Install nginx
+    yum:
+      name:
+        - nginx
+        - httpd-tools
+      update_cache: yes
+      state: latest
+
+  - name: Create config dir
+    file:
+      path: /etc/nginx/conf.d
+      state: directory
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Copy kibana nginx reverse proxy 
+    template:
+      src: /etc/ansible/common/nginx/kibana.conf
+      dest: /etc/nginx/conf.d/kibana.conf
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Copy password file
+    copy:
+      src: /etc/ansible/common/nginx/.htpasswd
+      dest: /etc/nginx/.htpasswd
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Allow access
+    command: '{{item}}'
+    loop:
+      - firewall-cmd --permanent --zone=internal --add-service=http
+      - firewall-cmd --permanent --zone=internal --add-service=https
+      - firewall-cmd --reload
+    
+  - name: Start nginx
+    service:
+      name: nginx
+      enabled: true
+      state: restarted

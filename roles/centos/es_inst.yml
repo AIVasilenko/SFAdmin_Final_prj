@@ -1,0 +1,57 @@
+---
+- hosts: centos
+  vars:
+    ES_deb: elasticsearch-8.7.0-x86_64.rpm
+  become: yes 
+  tasks:
+
+  - name: Install Java 1.8
+    yum:
+      name: java-1.8.0
+      update_cache: yes
+      state: latest
+
+  - name: Temporary disable firewall
+    service:
+      name: firewalld
+      state: stopped
+
+  - name: Reseive GPG key
+    command: rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+  - name: Stert firewall again
+    service:
+      name: firewalld
+      state: started
+
+  - name: Copy rpm package to remote host
+    copy:
+      src: /etc/ansible/common/ELK_rpm/{{ES_deb}}
+      dest: /tmp
+      owner: root
+      group: root
+      mode: 0777
+
+  - name: Install ES from rpm package
+    yum:
+      name: /tmp/{{ES_deb}}
+      state: present
+
+  - name: Copy Elastic config to server
+    copy:
+      src: /etc/ansible/common/ELK_rpm/elasticsearch.yml
+      dest: /etc/elasticsearch/elasticsearch.yml
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Remove tmp file
+    file:
+      path: /tmp/{{ES_deb}}
+      state: absent
+
+  - name: Start ES
+    service:
+      name: elasticsearch
+      enabled: true
+      state: restarted

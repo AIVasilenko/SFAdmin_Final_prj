@@ -1,0 +1,4 @@
+- import_playbook: nginx_inst.yml
+- import_playbook: es_inst.yml
+- import_playbook: kb_inst.yml
+- import_playbook: ls_inst.yml

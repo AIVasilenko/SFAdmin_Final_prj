@@ -1,0 +1,49 @@
+---
+- hosts: centos_direct
+  become: yes
+  tasks:
+  - name: Install epel-release repo
+    ansible.builtin.yum:
+      name: epel-release
+      state: latest
+
+  - name: Install OpenVPN
+    ansible.builtin.yum:
+      name: openvpn
+      state: latest
+
+  - name: Copy config to client
+    ansible.builtin.template:
+      src: /etc/openvpn/client/db-server/db-server.conf
+      dest: /etc/openvpn/db-server.conf
+      mode: 644
+      owner: root
+      group: root
+
+  - name: Disable SELINUX
+    command: setenforce Permissive
+
+  - name: SetOFF SELINUX
+    lineinfile:
+      path: /etc/selinux/config
+      regexp: '^SELINUX='
+      line: SELINUX=disabled
+
+  - name: Disable network config
+    copy:
+      src: ../../common/bind/99-disable-network-config.cfg
+      dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+
+  - name: configure network
+    command: '{{ item }}'
+    loop:
+      - nmcli con mod "System eth0" ipv4.ignore-auto-dns yes
+      - nmcli con mod "System eth0" ipv4.dns "10.0.0.2"
+      - nmcli con mod "System eth0" ipv4.dns-search "sf-alek.ru"
+      - nmcli connection up "System eth0"
+
+  - name: Start OpenVPN
+    systemd:
+      name: openvpn@db-server
+      enabled: yes 
+      state: restarted

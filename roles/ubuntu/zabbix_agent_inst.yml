@@ -1,0 +1,49 @@
+---
+- hosts: ubuntu
+  become: yes 
+  tasks:
+  - name: Download zabbix repo
+    ansible.builtin.get_url:
+      url: https://repo.zabbix.com/zabbix/6.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.4-1+ubuntu20.04_all.deb
+      dest: /tmp/zabbix-release_6.4-1+ubuntu20.04_all.deb
+      mode: 0777
+  - name: Install .deb package
+#   ansible.builtin.apt:
+#     deb: /tmp/zabbix-release_6.4-1+ubuntu20.04_all.deb
+    ansible.builtin.raw: dpkg -i /tmp/zabbix-release_6.4-1+ubuntu20.04_all.deb
+
+  - name: Install Zabix agent
+    ansible.builtin.apt:
+      name: zabbix-agent
+      update_cache: yes 
+    notify:
+      zabbix systemd
+
+  - name: Configure Zabbix server
+    ansible.builtin.lineinfile:
+      path: /etc/zabbix/zabbix_agentd.conf
+      line: "{{ item.line }}"
+      regexp: "{{ item.regexp }}"
+    loop:
+      - regexp: '^Server='
+        line: 'Server=10.0.0.1'
+      - regexp: '^ServerActive='
+        line: 'ServerActive=10.0.0.1'
+      - regexp: '^Hostname='
+        line: 'Hostname={{ ansible_hostname }}'
+  - name: Restart service
+    ansible.builtin.service:
+      name: zabbix-agent
+      state: restarted
+
+  - name: Remove deb file
+    ansible.builtin.file:
+      path: /tmp/zabbix-release_6.4-1+ubuntu20.04_all.deb
+      state: absent
+
+  handlers:
+  - name: zabbix systemd
+    systemd:
+      name: zabbix-agent
+      enabled: yes 
+      state: started

@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Set timezone
+    command: timedatectl set-timezone Europe/Moscow
+  - name: Restart rsyslog
+    service:
+      name: rsyslog
+      state: restarted

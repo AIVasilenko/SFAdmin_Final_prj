@@ -1,0 +1,6 @@
+- import_playbook: centos/openvpn_inst.yml
+- import_playbook: centos/firewalld_inst.yml
+- import_playbook: centos/zabbix_agent_inst.yml
+- import_playbook: centos/zabbix_firew.yml
+- import_playbook: centos/postgresql_inst.yml
+- import_playbook: centos/elk_inst.yml

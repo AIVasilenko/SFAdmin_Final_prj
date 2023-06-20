@@ -1,0 +1,47 @@
+---
+- hosts: ubuntu
+  become: yes
+  tasks:
+
+  - name: Install apache
+    apt:
+      name: apache2
+      update_cache: true
+    notify:
+      apache systemd
+
+  - name: Copy config files
+    copy:
+      src: '{{ item }}'
+      dest: '/etc/apache2/sites-available'
+    loop:
+      - ../../common/apache2/mymail.conf
+      - ../../common/apache2/roundcube.conf
+
+  - name: Unlink all sites enabled
+    block:
+      - name: Find all links
+        find:
+          paths: /etc/apache2/sites-enabled
+          file_type: link
+        register: collected_links
+      - name: unlick all found
+        file:
+          path: '{{ item.path }}'
+          state: absent
+        loop: "{{ collected_links.files }}" 
+
+  - name: Create onw sites
+    command: a2ensite mymail.conf roundcube.conf
+
+  - name: restart apache2
+    service:
+      name: apache2
+      state: restarted
+
+  handlers:
+  - name: apache systemd
+    systemd:
+      name: apache2
+      enabled: false
+      state: stopped

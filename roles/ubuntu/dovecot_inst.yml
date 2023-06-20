@@ -1,0 +1,70 @@
+---
+- hosts: ubuntu
+  become: yes
+  tasks:
+
+  - name: Include vars
+    include_vars: "../../vars.yml"
+
+  - name: Install Dovecot
+    apt:
+      name: 
+      - dovecot-core
+      - dovecot-imapd
+      - dovecot-pop3d
+      - dovecot-lmtpd
+      update_cache: true
+    notify:
+      systemd
+
+  - name: create mail group
+    group:
+      name: vmail
+      gid: 5000
+      state: present
+
+  - name: create mail user
+    user:
+      name: vmail
+      group: vmail
+      uid: 5000
+      comment: virtual mail user
+      shell: /usr/sbin/nologin
+      home: /var/mail/vhosts
+      append: yes
+
+  - name: create mail dir
+    file:
+      path: "/var/mail/vhosts/{{mail_region_name}}"
+      state: directory
+      recurse: yes
+      owner: vmail
+      group: vmail
+
+  - name: copy config files
+    copy:
+      src: '{{ item }}'
+      dest: '/etc/dovecot'
+    loop:
+      - ../../common/dovecot/dovecot-users
+      - ../../common/dovecot/conf.d/10-auth.conf
+      - ../../common/dovecot/conf.d/10-mail.conf
+      - ../../common/dovecot/conf.d/10-master.conf
+      - ../../common/dovecot/conf.d/auth-passwdfile.conf.ext
+
+  - name: Restart dovecot
+    service:
+      name: dovecot
+      state: restarted
+
+  - name: Restart postfix
+    service:
+      name: postfix
+      state: restarted
+
+  handlers:
+  - name: systemd
+    systemd:
+      name: dovecot
+      enabled: true
+      state: started

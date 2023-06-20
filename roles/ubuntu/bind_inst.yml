@@ -1,0 +1,25 @@
+---
+- hosts: ubuntu_direct
+  become: yes
+  tasks:
+
+  - name: Install bind9
+    apt:
+      name: bind9
+      state: latest
+
+  - name: Copy config files
+    copy:
+      src: '{{ item }}'
+      dest: '/etc/bind'
+    loop:
+      - ../../common/bind/named.conf.local
+      - ../../common/bind/named.conf.options
+      - ../../common/bind/sf-alek.db
+      - ../../common/bind/sf-alek-reverse.db
+
+  - name: Start bind9
+    service:
+      name: bind9
+      state: started
+      enabled: true

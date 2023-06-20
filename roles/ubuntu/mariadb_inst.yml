@@ -1,0 +1,51 @@
+---
+- hosts: ubuntu
+  become: yes
+  tasks:
+
+  - name: Install mariadb Server
+    apt:
+      name: 
+        - mariadb-server
+        - python3-pymysql
+        - php-mysql
+      update_cache: true
+    notify: systemd
+
+# - name: Install pip3
+#   apt:
+#     name: python3-pip
+
+# - name: Install pexpect
+#   pip:
+#     name: pexpect
+
+# Set root password as 'root' munually:
+# ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+
+# - name: secure mariadb
+#   ansible.builtin.expect:
+#     command: mysql_secure_installation
+#     responses:
+#       'Enter current password for root': ''
+#       'Set root password': 'n'
+#       'Remove anonymous users': 'y'
+#       'Disallow root login remotely': 'y'
+#       'Remove test database': 'y'
+#       'Reload privilege tables now': 'y'
+#     timeout: 1
+
+# - name: Create DB
+#   mysql_db:
+#     check_implicit_admin: yes
+#     login_user: root
+#     login_password: root
+#     name: roundcube
+#     state: present
+    
+  handlers:
+  - name: systemd
+    systemd:
+      name: mariadb
+      enabled: true
+      state: started

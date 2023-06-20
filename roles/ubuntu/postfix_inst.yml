@@ -1,0 +1,39 @@
+---
+- hosts: ubuntu
+  become: yes
+  tasks:
+
+  - name: Set postfix option internet site
+    debconf:
+      name: postfix
+      question: postfix/main_mailer_type
+      value: 'Internet Site'
+      vtype: string
+  - name: Set postfix option domain name
+    debconf:
+      name: postfix
+      question: postfix/mailname
+      value: '{{mail_region_name}}'
+      vtype: string
+
+  - name: Install postfix
+    apt:
+      name: postfix
+      state: latest
+
+  - name: copy config files
+      src: '{{ item }}'
+      dest: '/etc/postfix'
+    loop:
+      - ../../common/postfix/main.cf
+      - ../../common/postfix/master.cf
+      - ../../common/postfix/virtual_mailbox_domains
+
+  - name: Run postmap
+    command: postmap /etc/postfix/virtual_mailbox_domains
+
+  - name: Start postfix
+    service:
+      name: postfix
+      state: started
+      enabled: true

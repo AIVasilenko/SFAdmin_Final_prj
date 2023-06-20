@@ -1,0 +1,18 @@
+---
+- hosts: ubuntu
+  become: yes
+  tasks:
+
+  - name: Install nginx
+    apt:
+      name: nginx
+      update_cache: true
+    notify:
+      nginx systemd
+
+  handlers:
+  - name: nginx systemd
+    systemd:
+      name: nginx
+      enabled: false
+      state: stopped

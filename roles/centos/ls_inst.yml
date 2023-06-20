@@ -1,0 +1,30 @@
+---
+- hosts: centos
+  vars:
+    LS_deb: logstash-8.7.0-x86_64.rpm
+  become: yes 
+  tasks:
+
+  - name: Copy rpm package to remote host
+    copy:
+      src: /etc/ansible/common/ELK_rpm/{{LS_deb}}
+      dest: /tmp
+      owner: root
+      group: root
+      mode: 0777
+
+  - name: Install LS from rpm package
+    yum:
+      name: /tmp/{{LS_deb}}
+      state: present
+
+  - name: Remove tmp file
+    file:
+      path: /tmp/{{LS_deb}}
+      state: absent
+
+  - name: Start LS
+    service:
+      name: logstash
+      enabled: true
+      state: restarted

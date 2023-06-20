@@ -1,0 +1,44 @@
+---
+- hosts: centos
+  vars:
+    KB_deb: kibana-8.7.0-x86_64.rpm
+  become: yes 
+  tasks:
+
+  - name: Copy rpm package to remote host
+    copy:
+      src: /etc/ansible/common/ELK_rpm/{{KB_deb}}
+      dest: /tmp
+      owner: root
+      group: root
+      mode: 0777
+
+  - name: Install KB from rpm package
+    yum:
+      name: /tmp/{{KB_deb}}
+      state: present
+
+  - name: Copy Kibana config to Server
+    copy:
+      src: /etc/ansible/common/ELK_rpm/kibana.yml
+      dest: /etc/kibana/kibana.yml
+      owner: root
+      group: root
+      mode: 0644
+      
+  - name: Remove tmp file
+    file:
+      path: /tmp/{{KB_deb}}
+      state: absent
+
+  - name: Allow access
+    command: '{{item}}'
+    loop:
+      - firewall-cmd --add-port=5601/tcp --permanent
+      - firewall-cmd --reload
+
+  - name: Start KB
+    service:
+      name: kibana
+      enabled: true
+      state: restarted

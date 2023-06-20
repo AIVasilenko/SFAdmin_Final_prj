@@ -1,0 +1,94 @@
+---
+- hosts: ubuntu
+  become: yes
+  tasks:
+
+  - name: include vars
+    include_vars: ../../vars.yml
+
+  - name: Install Roundcube
+    unarchive:
+      src: https://github.com/roundcube/roundcubemail/releases/download/1.6.1/roundcubemail-1.6.1-complete.tar.gz
+      dest: /var/www/html
+      remote_src: yes
+      extra_opts:
+      - --transform
+      - s/roundcubemail-1.6.1/roundcube/
+  - name: Define roundcube dir to www-data user
+    file:
+      path: '{{roundcube_dir}}'
+      owner: www-data
+      group: www-data
+      recurse: yes
+
+# - name: Install mariadb Server
+#   apt:
+#     name: 
+#       - mariadb-server
+#       - python3-pymysql
+#       - php-mysql
+#     update_cache: true
+#   notify: systemd
+
+# - name: secure mariadb
+#   become: yes
+#   expect:
+#     command: mysql_secure_installation
+#     responses:
+#       'Enter current password for root': ''
+#       'Set root password': 'n'
+#       'Remove anonymous users': 'y'
+#       'Disallow root login remotely': 'y'
+#       'Remove test database': 'y'
+#       'Reload privilege tables now': 'y'
+#     timeout: 1
+
+  - name: Create DB
+    mysql_db:
+      check_implicit_admin: yes
+      login_user: '{{mariadb_root_user}}'
+      login_password: '{{mariadb_root_pass}}'
+      name: '{{mariadb_db}}'
+      state: present
+
+  - name: Add DB user
+    mysql_user:
+      check_implicit_admin: yes
+      login_user: '{{mariadb_root_user}}'
+      login_password: '{{mariadb_root_pass}}'
+      name: '{{roundcube_user}}'
+      password: '{{roundcube_user_pass}}'
+      host: localhost
+      priv: '{{mariadb_db}}.*:ALL'
+
+  - name: Restore roundcube DB
+    mysql_db:
+      login_user: '{{roundcube_user}}'
+      login_password: '{{roundcube_user_pass}}'
+      name: '{{mariadb_db}}'
+      state: import
+      target: '{{roundcube_dir}}/SQL/mysql.initial.sql'
+      
+  - name: Add alias to Apache server
+    shell: bash -c 'echo "Alias /mail {{roundcube_dir}}" > /etc/apache2/sites-available/roundcube.conf'
+#   copy:
+#     src: /etc/ansible/common/roundcube/roundcube.conf
+#     dest: /etc/apache2/sites-available/roundcube.conf
+
+  - name: Create symlink
+    file:
+      src: /etc/apache2/sites-available/roundcube.conf
+      dest: /etc/apache2/sites-enabled/roundcube.conf
+      state: link
+
+  - name: Restart Apache2 server
+    service:
+      name: apache2
+      state: restarted
+    
+  handlers:
+  - name: systemd
+    systemd:
+      name: mysql
+      enabled: true
+      state: started
