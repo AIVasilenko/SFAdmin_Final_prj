@@ -3,11 +3,9 @@
   become: yes
   tasks:
 
-    - name: Allow access for Zabbix
-      command: "{{ item }}"
-      with_items:
-        - firewall-cmd --permanent --new-zone=zabbix-access
-        - firewall-cmd --reload
-        - firewall-cmd --zone=zabbix-access --add-source=10.0.0.0/28 --permanent
-        - firewall-cmd --zone=zabbix-access --add-port=10050/tcp --permanent
-        - firewall-cmd --reload
+  - name: Allow access for Zabbix
+    command: "{{ item }}"
+    loop:
+      - firewall-cmd --zone=public --add-service=zabbix-agent --permanent
+      - firewall-cmd --reload
+
