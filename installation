@@ -106,3 +106,11 @@ Check:
 To configure kibana connect to
    <domain_name>:5601
 
+To enable ufw:
+On main-server execute:
+   sudo ufw allow OpenSSH
+   sudo ufw allow Apache
+   sudo ufw allow 3000
+   sudo ufw enable
+For u-agent host play ubuntu/ufw_enable.yml
+

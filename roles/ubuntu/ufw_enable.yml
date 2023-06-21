@@ -1,0 +1,19 @@
+---
+- hosts: ubuntu
+  become: yes 
+  tasks:
+  - name: Set rules
+    command: '{{ item }}'
+    loop:
+      - ufw allow OpenSSH
+      - ufw allow Apache
+      - ufw allow 'Dovecot IMAP'
+      - ufw allow 'Dovecot POP3'
+      - ufw allow Postfix
+      - ufw allow Bind9
+      - ufw allow from 10.0.0.0/28 proto tcp to any port 10050
+
+  - name: Enable ufw
+    ufw:
+      state: enabled
+      policy: deny
