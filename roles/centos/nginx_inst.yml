@@ -20,7 +20,7 @@
 
   - name: Create config dir
     file:
-      path: /etc/nginx/conf.d
+      path: /etc/nginx/sites-enabled
       state: directory
       owner: root
       group: root
@@ -29,10 +29,16 @@
   - name: Copy kibana nginx reverse proxy 
     template:
       src: /etc/ansible/common/nginx/kibana.conf
-      dest: /etc/nginx/conf.d/kibana.conf
+      dest: /etc/nginx/sites-enabled/kibana.conf
       owner: root
       group: root
       mode: 0644
+
+  - name: Update nginx config file
+    lineinfile:
+      path: /etc/nginx/nginx.conf
+      insertafter: 'include /etc/nginx/conf.d'
+      line: '    include /etc/nginx/sites-enabled/*.conf;'
 
   - name: Copy password file
     copy:
