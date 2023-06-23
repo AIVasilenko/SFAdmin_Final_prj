@@ -12,6 +12,19 @@
       src: /etc/openvpn/client/u-agent/u-agent.conf
       dest: /etc/openvpn/u-agent.conf
 
+  - name: Disable network config
+    copy:
+      src: ../../common/bind/99-disable-network-config.cfg
+      dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+
+  - name: Copy netplay config
+    copy:
+      src: ../../common/bind/50-cloud-init.yaml
+      dest: /etc/netplan/50-cloud-init.yaml
+
+  - name: Apply netplan
+    command: netplan apply
+
   - name: Start OpenVPN
     ansible.builtin.service:
       name: openvpn@u-agent

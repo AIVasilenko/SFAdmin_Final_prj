@@ -45,17 +45,19 @@ The role ubuntu_net_inst.yml includes:
             openvpn_inst.yml
             bind_inst.yml
 
-After they were run, connect to u-agent server and configure netplan:
+After they were run you may connect to u-agent server and check netplan config:
    /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg must include: network: {config: disabled}
-   edit /etc/netplan/50-cloud-init.yaml to add:
+   edit /etc/netplan/50-cloud-init.yaml must have:
          . . . . . . . . . .
+         dhcp4-overrides:
+             use-dns: false
          set-name: eth0
          nameservers:
              addresses: [10.0.0.2]
              search: [sf-alek.ru]
          . . . . . . . . . .
-   perform: sudo netplan apply
-            sudo systemctl restart bind9.service
+   perform: sudo netplan apply (if it needed)
+            sudo systemctl restart bind9.service (if it needed)
 
 Role ubuntu_full_inst.yml includes:
             web_inst.yml
@@ -114,3 +116,4 @@ On main-server execute:
    sudo ufw enable
 For u-agent host play ubuntu/ufw_enable.yml
 
+To set local time play roles/set_time_zone.yml
