@@ -15,5 +15,5 @@ network:
             set-name: eth0
             nameservers:
                 addresses: [10.0.0.2]
-                search: [sf-alek.ru]
+                search: [sf-alek.test]
     version: 2

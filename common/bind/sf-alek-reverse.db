@@ -1,12 +1,12 @@
 $TTL 30m
-0.0.10.in-addr.arpa. 	IN SOA u-agent.sf-alek.ru. alek.sf-alek.ru. (
+0.0.10.in-addr.arpa. 	IN SOA u-agent.sf-alek.test. alek.sf-alek.test. (
 	1 ; serial
 	5h ; renew
 	5m ; retry
 	1w ; expire
 	30 )
 
-0.0.10.in-addr.arpa.	IN NS u-agent.sf-alek.ru.
-1.0.0.10.in-addr.arpa.	IN PTR main-server.sf-alek.ru.
-2.0.0.10.in-addr.arpa.	IN PTR u-agent.sf-alek.ru.
-3.0.0.10.in-addr.arpa.	IN PTR db-server.sf-alek.ru.
+0.0.10.in-addr.arpa.	IN NS u-agent.sf-alek.test.
+1.0.0.10.in-addr.arpa.	IN PTR main-server.sf-alek.test.
+2.0.0.10.in-addr.arpa.	IN PTR u-agent.sf-alek.test.
+3.0.0.10.in-addr.arpa.	IN PTR db-server.sf-alek.test.

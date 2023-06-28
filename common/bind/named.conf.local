@@ -1,4 +1,4 @@
-zone "sf-alek.ru" {
+zone "sf-alek.test" {
 type master;
 file "/etc/bind/sf-alek.db";
 };

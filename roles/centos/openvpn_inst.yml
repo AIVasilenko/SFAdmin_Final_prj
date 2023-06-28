@@ -39,7 +39,7 @@
     loop:
       - nmcli con mod "System eth0" ipv4.ignore-auto-dns yes
       - nmcli con mod "System eth0" ipv4.dns "10.0.0.2"
-      - nmcli con mod "System eth0" ipv4.dns-search "sf-alek.ru"
+      - nmcli con mod "System eth0" ipv4.dns-search "sf-alek.test"
       - nmcli connection up "System eth0"
 
   - name: Start OpenVPN
